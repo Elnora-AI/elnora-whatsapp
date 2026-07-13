@@ -1,0 +1,17 @@
+{
+  "name": "whatsapp",
+  "version": "0.1.0",
+  "description": "WhatsApp for Claude Code — read, search, and send WhatsApp messages from your own paired account. 100% local: a Go bridge (whatsmeow) syncs your messages into SQLite on your machine, an MCP server exposes 14 tools, and a keep-alive service keeps it running automatically.",
+  "author": {
+    "name": "Elnora AI",
+    "email": "opensource@elnora.ai",
+    "url": "https://github.com/Elnora-AI"
+  },
+  "keywords": ["whatsapp", "messaging", "mcp", "whatsmeow", "bridge", "chat"],
+  "mcpServers": {
+    "whatsapp": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/mcp-launcher.js"]
+    }
+  }
+}

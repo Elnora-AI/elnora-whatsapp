@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint scripts & manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: shellcheck
+        run: shellcheck scripts/*.sh
+
+      - name: bash syntax
+        run: for f in scripts/*.sh; do bash -n "$f"; done
+
+      - name: node syntax
+        run: node --check scripts/mcp-launcher.js && node --check scripts/check-no-private.mjs
+
+      - name: python syntax
+        run: python3 -m py_compile scripts/qr.py
+
+      - name: powershell syntax
+        shell: pwsh
+        run: |
+          $errors = @()
+          foreach ($f in Get-ChildItem scripts/*.ps1) {
+            $tokens = $null; $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors) { $errors += $parseErrors }
+          }
+          if ($errors) { $errors | ForEach-Object { Write-Error $_.ToString() }; exit 1 }
+
+      - name: JSON manifests valid
+        run: |
+          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
+            python3 -m json.tool "$f" > /dev/null
+          done
+
+      - name: launchd template renders to valid plist
+        run: |
+          sed -e 's|{{BRIDGE_BIN}}|/tmp/x/bridge|g' -e 's|{{BRIDGE_DIR}}|/tmp/x|g' \
+              -e 's|{{WEBHOOK_URL}}|http://127.0.0.1:9/disabled|g' -e 's|{{FORWARD_SELF}}|false|g' \
+              -e 's|{{BRIDGE_PORT}}|8080|g' -e 's|{{LOG_PATH}}|/tmp/x/bridge.log|g' \
+              templates/launchd/com.whatsapp-mcp.bridge.plist > /tmp/rendered.plist
+          python3 -c "import plistlib; plistlib.load(open('/tmp/rendered.plist','rb'))"
+
+      - name: systemd template renders cleanly
+        run: |
+          sed -e 's|{{BRIDGE_BIN}}|/tmp/x/bridge|g' -e 's|{{BRIDGE_DIR}}|/tmp/x|g' \
+              -e 's|{{WEBHOOK_URL}}|http://127.0.0.1:9/disabled|g' -e 's|{{FORWARD_SELF}}|false|g' \
+              -e 's|{{BRIDGE_PORT}}|8080|g' -e 's|{{LOG_PATH}}|/tmp/x/bridge.log|g' \
+              templates/systemd/whatsapp-bridge.service > /tmp/rendered.service
+          grep -q '^ExecStart="/tmp/x/bridge"$' /tmp/rendered.service
+          ! grep -q '{{' /tmp/rendered.service
+
+  guard:
+    name: No private data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: check-no-private
+        run: node scripts/check-no-private.mjs
