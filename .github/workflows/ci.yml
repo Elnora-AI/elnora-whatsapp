@@ -18,7 +18,7 @@ jobs:
     name: Lint scripts & manifests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: shellcheck
         run: shellcheck scripts/*.sh
@@ -70,6 +70,6 @@ jobs:
     name: No private data
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: check-no-private
         run: node scripts/check-no-private.mjs
