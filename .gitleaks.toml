@@ -1,0 +1,8 @@
+# gitleaks configuration for elnora-whatsapp.
+#
+# Full default ruleset, no allowlist: this repo ships only scripts, templates,
+# and docs — there is no legitimate reason for anything secret-shaped to be
+# committed here. If gitleaks flags something, remove it; do not allowlist it.
+
+[extend]
+useDefault = true

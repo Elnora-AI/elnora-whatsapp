@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.whatsapp-mcp.bridge</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>{{BRIDGE_BIN}}</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>{{BRIDGE_DIR}}</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- The bridge has no webhook off switch; when WEBHOOK_URL is unset it
+             POSTs every incoming message to localhost:8769, where any local
+             process could listen. The default target below is the discard
+             port (root-only to bind), i.e. forwarding disabled. -->
+        <key>WEBHOOK_URL</key>
+        <string>{{WEBHOOK_URL}}</string>
+        <key>FORWARD_SELF</key>
+        <string>{{FORWARD_SELF}}</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+    <key>ThrottleInterval</key>
+    <integer>30</integer>
+    <key>StandardOutPath</key>
+    <string>{{LOG_PATH}}</string>
+    <key>StandardErrorPath</key>
+    <string>{{LOG_PATH}}</string>
+</dict>
+</plist>

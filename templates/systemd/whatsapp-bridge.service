@@ -1,0 +1,22 @@
+# systemd user unit for the WhatsApp MCP bridge.
+# Installed by scripts/setup.sh to ~/.config/systemd/user/whatsapp-bridge.service
+# Tip: `loginctl enable-linger $USER` keeps it running while you are logged out.
+
+[Unit]
+Description=WhatsApp MCP bridge (whatsmeow)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart={{BRIDGE_BIN}}
+WorkingDirectory={{BRIDGE_DIR}}
+# Webhook forwarding disabled by default — see the launchd template for why.
+Environment=WEBHOOK_URL={{WEBHOOK_URL}}
+Environment=FORWARD_SELF={{FORWARD_SELF}}
+Restart=on-failure
+RestartSec=30
+StandardOutput=append:{{LOG_PATH}}
+StandardError=append:{{LOG_PATH}}
+
+[Install]
+WantedBy=default.target

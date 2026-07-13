@@ -1,0 +1,15 @@
+# Never commit anything produced by a live WhatsApp install.
+store/
+*.db
+*.log
+qr*.png
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Toolchain artifacts
+node_modules/
+__pycache__/
+*.pyc
+.venv/
