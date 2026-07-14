@@ -58,12 +58,25 @@ for (const file of files) {
 // Commit metadata: identities and messages must be as generic as the tree.
 // Scans HEAD's history (not --all) so each ref is judged on its own commits:
 // main CI validates main, a PR's CI validates the PR branch.
+// On pull_request events HEAD is GitHub's SYNTHETIC test-merge commit, which
+// GitHub authors as the PR creator — nobody can control that identity, so
+// skip to the real PR head (second parent) in that one case.
+let scanRef = "HEAD";
+const headMeta = execFileSync("git", ["log", "-1", "--format=%ce%n%s", "HEAD"], {
+  encoding: "utf8",
+}).split("\n");
+if (
+  headMeta[0] === "noreply@github.com" &&
+  /^Merge [0-9a-f]{40} into [0-9a-f]{40}$/.test(headMeta[1] ?? "")
+) {
+  scanRef = "HEAD^2";
+}
 const gitLog = execFileSync(
   "git",
-  ["log", "HEAD", "--format=%h %an <%ae> %cn <%ce>%n%B"],
+  ["log", scanRef, "--format=%h %an <%ae> %cn <%ce>%n%B"],
   { encoding: "utf8" }
 );
-scanText(gitLog, "git-log");
+scanText(gitLog, `git-log(${scanRef})`);
 
 if (bad > 0) {
   console.error(`\n${bad} forbidden pattern hit(s). This repo must stay generic.`);
