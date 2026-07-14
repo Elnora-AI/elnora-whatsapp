@@ -82,7 +82,7 @@ npm install -g @elnora-ai/whatsapp   # puts `wa` and `elnora-whatsapp` on PATH
 wa doctor                            # then see `wa --help`
 ```
 
-Needs Node ≥22.5 and a completed setup (below or `/whatsapp-setup`). Name
+Needs Node ≥22.13 and a completed setup (below or `/whatsapp-setup`). Name
 resolution is agent-friendly: `wa send "Ana Torres" hi` works when the name
 is unique, and an ambiguous name fails with the candidate list instead of
 guessing. One recipient per send — bulk sending is refused by design.

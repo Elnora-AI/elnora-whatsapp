@@ -12,6 +12,8 @@ const { promisify } = require("node:util");
 const { DatabaseSync } = require("node:sqlite");
 
 const execFileP = promisify(execFile);
+const PHONE7 = "5550099"; // fictional; joined with the suffix at runtime
+const PHONE7_JID = PHONE7 + "@s.whatsapp.net";
 const WA = path.join(__dirname, "..", "cli", "wa.js");
 let dir, store, server, port, lastBody, lastAuth;
 
@@ -43,20 +45,28 @@ before(async () => {
       timestamp TEXT, is_from_me INTEGER, media_type TEXT, filename TEXT, url TEXT);
     INSERT INTO chats VALUES
       ('555001@s.whatsapp.net', NULL, '2026-01-02 10:00:00+00:00'),
-      ('999888777@g.us', 'Team PRs', '2026-01-03 09:00:00+00:00');
+      ('999888777@g.us', 'Team PRs', '2026-01-03 09:00:00+00:00'),
+      ('444333222@g.us', 'Busy Group', '2026-01-04 08:00:00+00:00'),
+      ('777666555@g.us', '8 800 555 35 35', '2026-01-01 08:00:00+00:00'),
+      ('${PHONE7_JID}', NULL, '2026-01-01 07:00:00+00:00');
     INSERT INTO messages VALUES
       ('m1','555001@s.whatsapp.net','555001','hello there','2026-01-02 09:00:00+00:00',0,NULL,NULL,NULL),
       ('m2','555001@s.whatsapp.net','me','hi back','2026-01-02 10:00:00+00:00',1,NULL,NULL,NULL),
-      ('m3','999888777@g.us','555001','https://example.com/pr/1','2026-01-03 09:00:00+00:00',0,NULL,NULL,NULL);
+      ('m3','999888777@g.us','555001','https://example.com/pr/1','2026-01-03 09:00:00+00:00',0,NULL,NULL,NULL),
+      ('m4','444333222@g.us','555001','same second A','2026-01-04 08:00:00+00:00',0,NULL,NULL,NULL),
+      ('m5','444333222@g.us','88811122233444','same second B','2026-01-04 08:00:00+00:00',0,NULL,NULL,NULL),
+      ('m6','777666555@g.us','555001','numeric group msg','2026-01-01 08:00:00+00:00',0,NULL,NULL,NULL);
   `);
   mdb.close();
 
   const cdb = new DatabaseSync(path.join(store, "whatsapp.db"));
   cdb.exec(`
     CREATE TABLE whatsmeow_contacts (their_jid TEXT, full_name TEXT, push_name TEXT, first_name TEXT);
+    CREATE TABLE whatsmeow_lid_map (lid TEXT PRIMARY KEY, pn TEXT UNIQUE NOT NULL);
     INSERT INTO whatsmeow_contacts VALUES
       ('555001@s.whatsapp.net','Alex Example','Alex',''),
       ('555002@s.whatsapp.net','Alexandra Sample','Sasha','');
+    INSERT INTO whatsmeow_lid_map VALUES ('88811122233444','555001');
   `);
   cdb.close();
 
@@ -94,10 +104,11 @@ test("contacts finds people and groups", async () => {
 });
 
 test("chats lists newest first with last message", async () => {
-  const chats = await run(["chats", "--limit", "5"]);
-  assert.equal(chats[0].jid, "999888777@g.us");
+  const chats = await run(["chats", "--limit", "10"]);
+  assert.equal(chats[0].jid, "444333222@g.us");
   assert.equal(chats[0].is_group, true);
-  assert.equal(chats[1].last_message, "hi back");
+  const dm = chats.find((c) => c.jid === "555001@s.whatsapp.net");
+  assert.equal(dm.last_message, "hi back");
 });
 
 test("messages resolves by unique name and labels senders", async () => {
@@ -120,9 +131,9 @@ test("ambiguous name fails with candidates", async () => {
   assert.ok(err.candidates.length >= 2);
 });
 
-test("phone digits resolve without db lookup", async () => {
-  const r = await run(["messages", "+55 50-01"]);
-  assert.equal(r.chat.jid, "555001@s.whatsapp.net");
+test("known international number resolves via the phone path", async () => {
+  const r = await run(["messages", "+555 00-99"]);
+  assert.equal(r.chat.jid, PHONE7_JID);
 });
 
 test("send resolves group name and posts to the bridge with auth", async () => {
@@ -142,11 +153,68 @@ test("doctor reports healthy against mock bridge", async () => {
   const r = await run(["doctor"]);
   assert.equal(r.healthy, true);
   assert.equal(r.paired, true);
-  assert.equal(r.chats, 2);
+  assert.equal(r.chats, 5);
 });
 
 test("missing store dies with hint", async () => {
   const err = await run(["chats"], { WHATSAPP_MCP_DIR: path.join(os.tmpdir(), "wa-nonexistent") }, true);
   assert.match(err.error, /database not found/);
   assert.ok(err.hint);
+});
+
+test("--since accepts canonical ISO 8601 with T and Z", async () => {
+  const t = await run(["messages", "555001@s.whatsapp.net", "--since", "2026-01-02T08:30:00Z"]);
+  assert.equal(t.messages.length, 2);
+  const later = await run(["messages", "555001@s.whatsapp.net", "--since", "2026-01-02T09:30:00Z"]);
+  assert.equal(later.messages.length, 1);
+  assert.equal(later.messages[0].content, "hi back");
+});
+
+test("--since rejects garbage with a hint", async () => {
+  const err = await run(["messages", "555001@s.whatsapp.net", "--since", "yesterdayish"], {}, true);
+  assert.match(err.error, /not a recognized timestamp/);
+});
+
+test("chats dedupes same-second last messages", async () => {
+  const chats = await run(["chats", "--limit", "10"]);
+  const busy = chats.filter((c) => c.jid === "444333222@g.us");
+  assert.equal(busy.length, 1);
+});
+
+test("LID senders resolve through whatsmeow_lid_map", async () => {
+  const r = await run(["messages", "Busy Group"]);
+  const lidMsg = r.messages.find((m) => m.content === "same second B");
+  assert.equal(lidMsg.sender, "Alex Example");
+});
+
+test("send body keeps flag-looking words verbatim", async () => {
+  const r = await run(["send", "Team PRs", "cost", "is", "--limit", "5", "ok"]);
+  assert.equal(r.sent, true);
+  assert.equal(lastBody.message, "cost is --limit 5 ok");
+});
+
+test("numeric-looking name resolves as group, not phone", async () => {
+  const r = await run(["messages", "8 800 555 35 35"]);
+  assert.equal(r.chat.jid, "777666555@g.us");
+});
+
+test("unknown number without chat is refused with JID hint", async () => {
+  const err = await run(["send", "12345678901", "hi"], {}, true);
+  assert.match(err.error, /no existing chat or contact/);
+  assert.match(err.hint, /12345678901@s\.whatsapp\.net/);
+});
+
+test("local-format number is rejected", async () => {
+  const err = await run(["messages", "0501234567"], {}, true);
+  assert.match(err.error, /local-format/);
+});
+
+test("unknown command is a JSON error on stderr", async () => {
+  const err = await run(["frobnicate"], {}, true);
+  assert.match(err.error, /unknown command/);
+});
+
+test("--version prints JSON version", async () => {
+  const r = await run(["--version"]);
+  assert.match(r.version, /^\d+\.\d+\.\d+$/);
 });
