@@ -56,9 +56,11 @@ for (const file of files) {
 }
 
 // Commit metadata: identities and messages must be as generic as the tree.
+// Scans HEAD's history (not --all) so each ref is judged on its own commits:
+// main CI validates main, a PR's CI validates the PR branch.
 const gitLog = execFileSync(
   "git",
-  ["log", "--all", "--format=%h %an <%ae> %cn <%ce>%n%B"],
+  ["log", "HEAD", "--format=%h %an <%ae> %cn <%ce>%n%B"],
   { encoding: "utf8" }
 );
 scanText(gitLog, "git-log");
