@@ -13,16 +13,6 @@ nothing is sent to any cloud, and sends always go through your approval.
 
 ## What you get
 
-- **A `wa` CLI** for scripts, cron jobs, and any agent harness — reads answer
-  in ~50 ms straight from the local store (even with the bridge down), sends
-  go through the authenticated bridge. JSON in, JSON out:
-  ```bash
-  wa contacts "ana"                 # search people and group chats
-  wa chats --limit 10               # recent chats, newest first
-  wa messages "Ana Torres" --from-them --since 2026-07-01
-  wa send "Team PRs" "https://github.com/org/repo/pull/42"
-  wa doctor                         # health as JSON, exit code = status
-  ```
 - **14 MCP tools** — search contacts, list/read chats and messages, message
   context, send text / files / voice notes / reactions, download media.
 - **A skill** that teaches Claude the fast paths: direct SQLite for bulk
@@ -74,18 +64,6 @@ C compiler: preinstalled on macOS (CLT), `build-essential` on Debian/Ubuntu,
 and on Windows `pacman -S mingw-w64-ucrt-x86_64-gcc` in
 [MSYS2](https://www.msys2.org/). Optional: FFmpeg for sending arbitrary audio
 as voice notes.
-
-## CLI install (any terminal, any agent)
-
-```bash
-npm install -g @elnora-ai/whatsapp   # puts `wa` and `elnora-whatsapp` on PATH
-wa doctor                            # then see `wa --help`
-```
-
-Needs Node ≥22.5 and a completed setup (below or `/whatsapp-setup`). Name
-resolution is agent-friendly: `wa send "Ana Torres" hi` works when the name
-is unique, and an ambiguous name fails with the candidate list instead of
-guessing. One recipient per send — bulk sending is refused by design.
 
 ## Manual install (any MCP client)
 
@@ -167,6 +145,18 @@ Devices.
 
 Setting this up for a user? Follow [INSTALL_FOR_AGENTS.md](INSTALL_FOR_AGENTS.md).
 Driving an existing install from a non-Claude harness? See [AGENTS.md](AGENTS.md).
+
+## Part of the Elnora family
+
+This plugin is one of a set of universal, config-driven Claude Code tools from [Elnora AI](https://github.com/Elnora-AI). Each works 100% standalone — install several and Claude chains them: a WhatsApp thread becomes a vault note, a task, a Linear issue, or an email follow-up in one conversation.
+
+- **[knowledge-vault](https://github.com/Elnora-AI/knowledge-vault)** — Obsidian vault power tools. Chain: "summarize my chat with Ana and save it to the vault" turns WhatsApp messages into CRM notes and tasks in your own vault, searchable later.
+- **[elnora-google-workspace](https://github.com/Elnora-AI/elnora-google-workspace)** — Gmail, Calendar, Drive, Docs, Sheets, and any Google API. Chain: cross-channel follow-ups — "she confirmed on WhatsApp, put it on the calendar and email the details".
+- **[elnora-slack](https://github.com/Elnora-AI/elnora-slack)** — the full Slack Web API as a CLI with a draft-and-approve send gate. Chain: relay between channels — "forward the gist of that WhatsApp group discussion to #team".
+- **[elnora-linear](https://github.com/Elnora-AI/elnora-linear)** — Linear search, bulk edit, agents, and a config-driven curator. Chain: "the client reported this bug on WhatsApp — file it in Linear with the message context".
+- **[elnora-merit-aktiva](https://github.com/Elnora-AI/elnora-merit-aktiva)** — Merit Aktiva accounting + Merit Palk payroll CLI. Chain: "find the invoice Ana asked about on WhatsApp and check whether it's been paid".
+
+Browse the full set at [github.com/Elnora-AI](https://github.com/Elnora-AI).
 
 ## Credits & license
 
