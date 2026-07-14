@@ -1,15 +1,25 @@
 {
   "name": "elnora-whatsapp",
-  "description": "WhatsApp for Claude Code — single-plugin marketplace.",
-  "owner": { "name": "Elnora AI", "email": "opensource@elnora.ai", "url": "https://github.com/Elnora-AI" },
+  "description": "WhatsApp for Claude Code \u2014 single-plugin marketplace.",
+  "owner": {
+    "name": "Elnora AI",
+    "email": "opensource@elnora.ai",
+    "url": "https://github.com/Elnora-AI"
+  },
   "plugins": [
     {
       "name": "whatsapp",
-      "description": "Read, search, and send WhatsApp messages from your own paired account — fully local (SQLite on your machine), automated setup, keep-alive service on macOS/Linux/Windows.",
+      "description": "Read, search, and send WhatsApp messages from your own paired account \u2014 fully local (SQLite on your machine), automated setup, keep-alive service on macOS/Linux/Windows.",
       "source": "./",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "communication",
-      "tags": ["whatsapp", "messaging", "mcp", "chat", "bridge"]
+      "tags": [
+        "whatsapp",
+        "messaging",
+        "mcp",
+        "chat",
+        "bridge"
+      ]
     }
   ]
 }
