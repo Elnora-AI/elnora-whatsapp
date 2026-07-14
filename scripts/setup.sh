@@ -63,11 +63,15 @@ esac
 
 # --- input validation --------------------------------------------------------
 # These values are substituted into service files; keep them boring.
+# NB: a literal newline variable — $(printf '\n') strips to empty and would
+# match every string.
+NL='
+'
 case "$INSTALL_DIR" in
-  *'|'*|*'<'*|*'>'*|*'"'*|*"$(printf '\n')"*) die "Install dir contains unsupported characters." ;;
+  *'|'*|*'<'*|*'>'*|*'"'*|*"$NL"*) die "Install dir contains unsupported characters." ;;
 esac
 case "$WEBHOOK_URL_VALUE" in
-  *'|'*|*'<'*|*'>'*|*'"'*|*"'"*|*' '*|*"$(printf '\n')"*) die "--webhook URL contains unsupported characters." ;;
+  *'|'*|*'<'*|*'>'*|*'"'*|*"'"*|*' '*|*"$NL"*) die "--webhook URL contains unsupported characters." ;;
 esac
 case "$PORT_VALUE" in
   ''|*[!0-9]*) die "--port must be a number." ;;
