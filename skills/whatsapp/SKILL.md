@@ -32,13 +32,23 @@ never commit it, never copy the DBs elsewhere, never loosen its permissions.
 
 ## Access paths (pick the lightest that works)
 
-1. **MCP tools** (`mcp__whatsapp__*`): `search_contacts`, `get_contact`,
+1. **`wa` CLI** — fastest for reads and the right tool from scripts/cron
+   (`npm i -g @elnora-ai/whatsapp`, or `node <plugin-root>/cli/wa.js`):
+   ```bash
+   wa contacts "ana"            # people + group chats
+   wa chats --limit 10
+   wa messages "Ana Torres" --from-them --limit 5
+   wa send "<name|phone|jid>" "text"    # single recipient; name must be unique
+   wa doctor
+   ```
+   JSON output (`--compact` to save tokens); reads work with the bridge down.
+2. **MCP tools** (`mcp__whatsapp__*`): `search_contacts`, `get_contact`,
    `list_messages`, `list_chats`, `get_chat`, `get_direct_chat_by_contact`,
    `get_contact_chats`, `get_last_interaction`, `get_message_context`,
    `send_message`, `send_reaction`, `send_file`, `send_audio_message`,
-   `download_media`. Preferred for sends (permission prompt) and name-based
-   lookups.
-2. **Direct SQLite** — fastest for read-only queries; works even when the
+   `download_media`. Preferred for interactive sends (permission prompt) and
+   media.
+3. **Direct SQLite** — when the CLI isn't available; works even when the
    bridge is down:
    ```bash
    sqlite3 "${WHATSAPP_MCP_DIR:-$HOME/.whatsapp-mcp}/whatsapp-bridge/store/messages.db" \
@@ -46,7 +56,7 @@ never commit it, never copy the DBs elsewhere, never loosen its permissions.
       WHERE chat_jid='<phone>@s.whatsapp.net'
       ORDER BY timestamp DESC LIMIT 20"
    ```
-3. **Bridge REST** — for sends from non-MCP scripts:
+4. **Bridge REST** — for sends from non-MCP scripts (prefer the CLI):
    `POST http://127.0.0.1:8080/api/send` with
    `Authorization: Bearer $(cat store/.bridge-token)`. Other endpoints:
    `/api/health`, `/api/react`, `/api/download`, `/api/typing`.

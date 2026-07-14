@@ -13,6 +13,16 @@ nothing is sent to any cloud, and sends always go through your approval.
 
 ## What you get
 
+- **A `wa` CLI** for scripts, cron jobs, and any agent harness — reads answer
+  in ~50 ms straight from the local store (even with the bridge down), sends
+  go through the authenticated bridge. JSON in, JSON out:
+  ```bash
+  wa contacts "ana"                 # search people and group chats
+  wa chats --limit 10               # recent chats, newest first
+  wa messages "Ana Torres" --from-them --since 2026-07-01
+  wa send "Team PRs" "https://github.com/org/repo/pull/42"
+  wa doctor                         # health as JSON, exit code = status
+  ```
 - **14 MCP tools** — search contacts, list/read chats and messages, message
   context, send text / files / voice notes / reactions, download media.
 - **A skill** that teaches Claude the fast paths: direct SQLite for bulk
@@ -64,6 +74,18 @@ C compiler: preinstalled on macOS (CLT), `build-essential` on Debian/Ubuntu,
 and on Windows `pacman -S mingw-w64-ucrt-x86_64-gcc` in
 [MSYS2](https://www.msys2.org/). Optional: FFmpeg for sending arbitrary audio
 as voice notes.
+
+## CLI install (any terminal, any agent)
+
+```bash
+npm install -g @elnora-ai/whatsapp   # puts `wa` and `elnora-whatsapp` on PATH
+wa doctor                            # then see `wa --help`
+```
+
+Needs Node ≥22.5 and a completed setup (below or `/whatsapp-setup`). Name
+resolution is agent-friendly: `wa send "Ana Torres" hi` works when the name
+is unique, and an ambiguous name fails with the candidate list instead of
+guessing. One recipient per send — bulk sending is refused by design.
 
 ## Manual install (any MCP client)
 

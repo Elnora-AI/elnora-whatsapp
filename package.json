@@ -1,0 +1,33 @@
+{
+  "name": "@elnora-ai/whatsapp",
+  "version": "0.1.0",
+  "description": "WhatsApp CLI + Claude Code plugin — read, search, and send WhatsApp messages from your own paired account, 100% locally.",
+  "license": "Apache-2.0",
+  "author": "Elnora AI <opensource@elnora.ai>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Elnora-AI/elnora-whatsapp.git"
+  },
+  "homepage": "https://github.com/Elnora-AI/elnora-whatsapp#readme",
+  "bugs": "https://github.com/Elnora-AI/elnora-whatsapp/issues",
+  "keywords": ["whatsapp", "cli", "mcp", "claude-code", "messaging", "agents"],
+  "bin": {
+    "elnora-whatsapp": "cli/wa.js",
+    "wa": "cli/wa.js"
+  },
+  "files": [
+    "cli/",
+    "scripts/",
+    "templates/",
+    "README.md",
+    "LICENSE",
+    "AGENTS.md",
+    "INSTALL_FOR_AGENTS.md"
+  ],
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  }
+}

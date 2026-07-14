@@ -12,13 +12,20 @@ SQLite stores, and REST token under `whatsapp-bridge/store/` (token at
 
 ## Access paths
 
-1. **MCP tools** (via `scripts/mcp-launcher.js`, or your client's config):
+1. **`wa` CLI** (preferred for reads and scripted sends; `npm i -g
+   @elnora-ai/whatsapp` or `node cli/wa.js`): `contacts`, `chats`,
+   `messages`, `send`, `doctor`. JSON stdout / JSON stderr / exit codes;
+   `--compact` to save tokens. Resolves names → JIDs (unique match or fails
+   with candidates), refuses multi-recipient sends. Reads work with the
+   bridge down.
+2. **MCP tools** (via `scripts/mcp-launcher.js`, or your client's config):
    14 tools — contacts, chats, messages, context, send text/file/audio/
-   reaction, download media. Preferred for sends and name lookups.
-2. **Direct SQLite** (read-only, works with the bridge down):
+   reaction, download media. Preferred for interactive sends (permission
+   prompt) and anything media.
+3. **Direct SQLite** (when the CLI isn't installed):
    `whatsapp-bridge/store/messages.db` — `messages`, `chats` tables.
    Contacts live in `whatsapp.db` → `whatsmeow_contacts`.
-3. **REST** (sends from scripts): `POST http://127.0.0.1:8080/api/send`,
+4. **REST** (last resort): `POST http://127.0.0.1:8080/api/send`,
    header `Authorization: Bearer $(cat store/.bridge-token)`. Also
    `/api/health`, `/api/react`, `/api/download`, `/api/typing`.
 

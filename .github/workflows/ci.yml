@@ -66,6 +66,23 @@ jobs:
           grep -q '^ExecStart="/tmp/x/bridge"$' /tmp/rendered.service
           ! grep -q '{{' /tmp/rendered.service
 
+  test:
+    name: CLI tests (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["22", "latest"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --check cli/wa.js
+      - run: npm test
+      - name: npm pack sanity
+        run: npm pack --dry-run 2>&1 | grep -q "cli/wa.js"
+
   guard:
     name: No private data
     runs-on: ubuntu-latest
