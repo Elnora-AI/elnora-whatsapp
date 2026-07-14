@@ -25,15 +25,23 @@ const FORBIDDEN = [
 ];
 
 const SELF = "scripts/check-no-private.mjs";
+
+// Maintainer git identities are allowed in commit METADATA only: GitHub
+// authors squash/merge commits as the acting maintainer, which no repo
+// setting can prevent, and these addresses are already public on every
+// Elnora-AI repo's history. File CONTENT stays fully strict.
+const METADATA_ALLOW = ["carmen.kivisild@elnora.ai", "risto.jamul@elnora.ai"];
+
 let bad = 0;
 
-function scanText(text, label) {
+function scanText(text, label, extraAllow = []) {
   const lines = text.split("\n");
   lines.forEach((line, i) => {
     for (const rule of FORBIDDEN) {
       rule.re.lastIndex = 0;
       for (const m of line.matchAll(rule.re)) {
         if (rule.allow && rule.allow.includes(m[0])) continue;
+        if (extraAllow.includes(m[0])) continue;
         console.error(`${label}:${i + 1}: ${rule.why}: ${m[0]}`);
         bad++;
       }
@@ -76,7 +84,7 @@ const gitLog = execFileSync(
   ["log", scanRef, "--format=%h %an <%ae> %cn <%ce>%n%B"],
   { encoding: "utf8" }
 );
-scanText(gitLog, `git-log(${scanRef})`);
+scanText(gitLog, `git-log(${scanRef})`, METADATA_ALLOW);
 
 if (bad > 0) {
   console.error(`\n${bad} forbidden pattern hit(s). This repo must stay generic.`);
