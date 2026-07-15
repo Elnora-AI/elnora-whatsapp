@@ -170,15 +170,19 @@ Driving an existing install from a non-Claude harness? See [AGENTS.md](AGENTS.md
 
 ## Part of the Elnora family
 
-This plugin is one of a set of universal, config-driven Claude Code tools from [Elnora AI](https://github.com/Elnora-AI). Each works 100% standalone — install several and Claude chains them: a WhatsApp thread becomes a vault note, a task, a Linear issue, or an email follow-up in one conversation.
+Open-source agent tooling from [Elnora AI](https://github.com/Elnora-AI) — free, universal, config-driven tools that wire Claude Code (or any AI coding agent) into the systems you run your company on. Each works 100% standalone; install several and they chain into end-to-end workflows.
 
-- **[knowledge-vault](https://github.com/Elnora-AI/knowledge-vault)** — Obsidian vault power tools. Chain: "summarize my chat with Ana and save it to the vault" turns WhatsApp messages into CRM notes and tasks in your own vault, searchable later.
-- **[elnora-google-workspace](https://github.com/Elnora-AI/elnora-google-workspace)** — Gmail, Calendar, Drive, Docs, Sheets, and any Google API. Chain: cross-channel follow-ups — "she confirmed on WhatsApp, put it on the calendar and email the details".
-- **[elnora-slack](https://github.com/Elnora-AI/elnora-slack)** — the full Slack Web API as a CLI with a draft-and-approve send gate. Chain: relay between channels — "forward the gist of that WhatsApp group discussion to #team".
-- **[elnora-linear](https://github.com/Elnora-AI/elnora-linear)** — Linear search, bulk edit, agents, and a config-driven curator. Chain: "the client reported this bug on WhatsApp — file it in Linear with the message context".
-- **[elnora-merit-aktiva](https://github.com/Elnora-AI/elnora-merit-aktiva)** — Merit Aktiva accounting + Merit Palk payroll CLI. Chain: "find the invoice Ana asked about on WhatsApp and check whether it's been paid".
-
-Browse the full set at [github.com/Elnora-AI](https://github.com/Elnora-AI).
+<!-- ELNORA-FAMILY:START -->
+- [elnora-linear](https://github.com/Elnora-AI/elnora-linear) — Linear issue management — search, bulk edit, agents, and a config-driven curator
+- [elnora-slack](https://github.com/Elnora-AI/elnora-slack) — the entire Slack Web API as a CLI plus agent skills with a draft-and-approve send gate
+- [elnora-google-workspace](https://github.com/Elnora-AI/elnora-google-workspace) — Gmail, Calendar, Drive, Docs, Sheets, Forms, Tasks, plus any Google API via Discovery
+- [elnora-merit-aktiva](https://github.com/Elnora-AI/elnora-merit-aktiva) — Merit Aktiva accounting and Merit Palk payroll as a CLI and plugin
+- [elnora-vanta](https://github.com/Elnora-AI/elnora-vanta) — read-only Vanta compliance — frameworks, tests, controls, and vulnerabilities as agent-friendly JSON
+- [elnora-luma](https://github.com/Elnora-AI/elnora-luma) — Luma (lu.ma) events — all 61 public API endpoints as a spec-driven CLI with safety guardrails
+- [elnora-travel](https://github.com/Elnora-AI/elnora-travel) — a real travel agent — live flights, hotels, Airbnb, Booking.com, and routes in one itinerary
+- [elnora-websearch-tools](https://github.com/Elnora-AI/elnora-websearch-tools) — web search — Exa, Tavily, Perplexity, Firecrawl, and Valyu CLIs and skills in one plugin
+- [knowledge-vault](https://github.com/Elnora-AI/knowledge-vault) — an Obsidian-compatible knowledge base for agent teams — search and save your work to any vault
+<!-- ELNORA-FAMILY:END -->
 
 ## Credits & license
 
