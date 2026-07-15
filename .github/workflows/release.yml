@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish-npm:
+    name: Publish to npm
+    # Gated behind a repository variable so release-please releases don't fail
+    # before the npm Trusted Publisher connection exists. Enable with:
+    #   gh variable set NPM_PUBLISH_ENABLED --body true
+    if: ${{ vars.NPM_PUBLISH_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+      - name: Sync version from release tag
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION="${REF_NAME#v}"
+          echo "Publishing version: $VERSION"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+      # Zero-dependency package: no lockfile, no install step.
+      - run: npm test
+      - name: Publish to npm
+        run: npm publish --access public --provenance
