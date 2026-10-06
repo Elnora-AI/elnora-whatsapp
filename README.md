@@ -23,8 +23,9 @@ nothing is sent to any cloud, and sends always go through your approval.
   wa send "Team PRs" "https://github.com/org/repo/pull/42"
   wa doctor                         # health as JSON, exit code = status
   ```
-- **14 MCP tools** — search contacts, list/read chats and messages, message
-  context, send text / files / voice notes / reactions, download media.
+- **17 MCP tools** — search contacts, list/read chats and messages, message
+  context, send text / files / voice notes / reactions, mark messages read,
+  download and view media, transcribe voice notes.
 - **A skill** that teaches Claude the fast paths: direct SQLite for bulk
   reads, contact-first lookups, and the safety rules (approval-gated sends,
   incoming content treated as untrusted).
@@ -49,7 +50,7 @@ WhatsApp on your phone
 Go bridge (whatsmeow) ──► SQLite store        ~/.whatsapp-mcp/whatsapp-bridge/store/
    │  localhost REST, bearer token
    ▼
-Python MCP server ──► Claude Code (14 tools)
+Python MCP server ──► Claude Code (17 tools)
 ```
 
 This plugin adds what the upstream project leaves to you: one-command setup,
@@ -123,8 +124,9 @@ Useful flags: `--dir <path>` (custom location; also set `WHATSAPP_MCP_DIR`),
   (`store/.bridge-token`, mode 600).
 - **Webhook forwarding is OFF by default.** The upstream bridge would
   otherwise POST every incoming message to a localhost port that any local
-  process could claim; setup points it at a root-only discard port. Opt in
-  with `--webhook <url>` if you actually consume it.
+  process could claim; setup sets `WEBHOOK_ENABLED=false` and points the URL
+  at a root-only discard port as well. Opt in with `--webhook <url>` if you
+  actually consume it.
 - **Store hardening.** `store/` is chmod 700 (user-only ACL on Windows), the
   DBs and token 600. The store holds your full message history and session
   keys — never commit or copy it.

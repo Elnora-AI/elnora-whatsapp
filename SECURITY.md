@@ -19,6 +19,6 @@ on this repository. We aim to acknowledge within 2 business days.
 
 ## Hardening defaults shipped here
 
-- Webhook forwarding disabled (discard-port `WEBHOOK_URL`).
+- Webhook forwarding disabled (`WEBHOOK_ENABLED=false`, and a discard-port `WEBHOOK_URL`).
 - `store/` chmod 700, databases and token 600 (user-only ACL on Windows).
 - Upstream pinned to a reviewed revision, not a moving branch.

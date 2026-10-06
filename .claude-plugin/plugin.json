@@ -1,7 +1,7 @@
 {
   "name": "whatsapp",
-  "version": "0.1.1",
-  "description": "WhatsApp for Claude Code \u2014 read, search, and send WhatsApp messages from your own paired account. 100% local: a Go bridge (whatsmeow) syncs your messages into SQLite on your machine, an MCP server exposes 14 tools, and a keep-alive service keeps it running automatically.",
+  "version": "0.1.2",
+  "description": "WhatsApp for Claude Code \u2014 read, search, and send WhatsApp messages from your own paired account. 100% local: a Go bridge (whatsmeow) syncs your messages into SQLite on your machine, an MCP server exposes 17 tools, and a keep-alive service keeps it running automatically.",
   "author": {
     "name": "Elnora AI",
     "email": "opensource@elnora.ai",

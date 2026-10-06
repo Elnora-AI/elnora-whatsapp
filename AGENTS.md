@@ -19,8 +19,8 @@ SQLite stores, and REST token under `whatsapp-bridge/store/` (token at
    with candidates), refuses multi-recipient sends. Reads work with the
    bridge down.
 2. **MCP tools** (via `scripts/mcp-launcher.js`, or your client's config):
-   14 tools — contacts, chats, messages, context, send text/file/audio/
-   reaction, download media. Preferred for interactive sends (permission
+   17 tools — contacts, chats, messages, context, send text/file/audio/
+   reaction, mark read, download/view media, transcribe audio. Preferred for interactive sends (permission
    prompt) and anything media.
 3. **Direct SQLite** (when the CLI isn't installed):
    `whatsapp-bridge/store/messages.db` — `messages`, `chats` tables.

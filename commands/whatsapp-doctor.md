@@ -13,6 +13,10 @@ Diagnose the WhatsApp install and repair it.
    - Install dir or binary missing → re-run setup (`/whatsapp-setup`).
    - Service not loaded → re-run the setup script (it re-installs the service
      idempotently).
+   - "WhatsApp rejects this bridge version" (`Client outdated (405)` in the
+     log) → the build is too old and re-pairing will not help: update the
+     plugin, then re-run setup with `--update` (Windows: `-Update`), which
+     moves the checkout to the pinned revision and rebuilds.
    - Bridge up but NOT connected → the session needs re-pairing: user runs
      `bash "${CLAUDE_PLUGIN_ROOT}/scripts/pair.sh"` in their terminal and
      scans the QR (WhatsApp > Settings > Linked Devices).

@@ -23,9 +23,8 @@ if [ "$OS" = "Darwin" ]; then
     restart=1
   fi
 elif [ "$OS" = "Linux" ]; then
-  # is-enabled, not is-active: an unpaired bridge exits cleanly after the QR
-  # window (~15 min) and Restart=on-failure won't have revived it — the unit
-  # still needs restarting after a successful pair.
+  # is-enabled, not is-active: the unit is stopped while this pairs in the
+  # foreground, and started again afterwards.
   if systemctl --user is-enabled --quiet whatsapp-bridge.service 2>/dev/null; then
     systemctl --user stop whatsapp-bridge.service 2>/dev/null || true
     restart=1
@@ -53,6 +52,7 @@ echo "[pair] Press Ctrl-C once it prints that it is connected."
 echo
 
 cd "$BRIDGE_DIR"
+WEBHOOK_ENABLED="${WEBHOOK_ENABLED:-false}" \
 WEBHOOK_URL="${WEBHOOK_URL:-http://127.0.0.1:9/disabled}" \
 FORWARD_SELF="${FORWARD_SELF:-false}" \
   ./whatsapp-bridge "$@"

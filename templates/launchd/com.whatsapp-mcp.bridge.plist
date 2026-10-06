@@ -12,10 +12,14 @@
     <string>{{BRIDGE_DIR}}</string>
     <key>EnvironmentVariables</key>
     <dict>
-        <!-- The bridge has no webhook off switch; when WEBHOOK_URL is unset it
-             POSTs every incoming message to localhost:8769, where any local
-             process could listen. The default target below is the discard
-             port (root-only to bind), i.e. forwarding disabled. -->
+        <!-- Webhook forwarding is off unless setup was given a consumer:
+             WEBHOOK_ENABLED=false is the bridge's off switch. When
+             WEBHOOK_URL is unset the bridge would POST every incoming
+             message to localhost:8769, where any local process could
+             listen, so the default URL is also the discard port (root-only
+             to bind). -->
+        <key>WEBHOOK_ENABLED</key>
+        <string>{{WEBHOOK_ENABLED}}</string>
         <key>WEBHOOK_URL</key>
         <string>{{WEBHOOK_URL}}</string>
         <key>FORWARD_SELF</key>
@@ -25,11 +29,11 @@
     </dict>
     <key>RunAtLoad</key>
     <true/>
+    <!-- Restart on every exit: the bridge exits 0 when it gives up
+         connecting (no network at login, a QR window that timed out), so
+         restarting only after a failure leaves it down for good. -->
     <key>KeepAlive</key>
-    <dict>
-        <key>SuccessfulExit</key>
-        <false/>
-    </dict>
+    <true/>
     <key>ThrottleInterval</key>
     <integer>30</integer>
     <key>StandardOutPath</key>

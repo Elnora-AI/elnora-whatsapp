@@ -40,6 +40,14 @@ if ($task) { OK "scheduled task registered ('$TaskName', state: $($task.State))"
 elseif ($bridgeUp) { Write-Host "WARN  scheduled task '$TaskName' not registered (bridge is running anyway - supervised elsewhere?)" }
 else { Bad "scheduled task '$TaskName' not registered - re-run scripts\setup.ps1" }
 
+# WhatsApp retires old client versions: the bridge then logs "Client outdated
+# (405)" and never connects. A new QR pairing cannot fix that; a newer build can.
+$lastOutcome = if (Test-Path $LogPath) {
+    Select-String -Path $LogPath -Pattern 'Client outdated|Successfully connected|Scan this QR code' | Select-Object -Last 1
+}
+$outdated = $lastOutcome -and $lastOutcome.Line -match 'Client outdated'
+$outdatedMsg = "WhatsApp rejects this bridge version (Client outdated (405) in $LogPath) - run scripts\setup.ps1 -Update; re-pairing will not help"
+
 if (Test-Path $TokenFile) {
     $token = (Get-Content $TokenFile -Raw).Trim()
     try {
@@ -49,7 +57,8 @@ if (Test-Path $TokenFile) {
     } catch {
         $codeNum = 0
         if ($_.Exception.Response) { $codeNum = [int]$_.Exception.Response.StatusCode }
-        if ($codeNum -eq 503) { Bad "bridge up but NOT connected - run the bridge in a terminal and scan the QR" }
+        if ($outdated -and ($codeNum -eq 503 -or $codeNum -eq 0)) { Bad $outdatedMsg }
+        elseif ($codeNum -eq 503) { Bad "bridge up but NOT connected - run the bridge in a terminal and scan the QR" }
         elseif ($codeNum -eq 401 -or $codeNum -eq 403) { Bad "bridge rejected the token - restart the task and retry" }
         else { Bad "bridge not reachable on 127.0.0.1:$Port - check the task and $LogPath" }
     }

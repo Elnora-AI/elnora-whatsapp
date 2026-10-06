@@ -11,10 +11,12 @@ Wants=network-online.target
 ExecStart="{{BRIDGE_BIN}}"
 WorkingDirectory={{BRIDGE_DIR}}
 # Webhook forwarding disabled by default — see the launchd template for why.
+Environment=WEBHOOK_ENABLED={{WEBHOOK_ENABLED}}
 Environment=WEBHOOK_URL={{WEBHOOK_URL}}
 Environment=FORWARD_SELF={{FORWARD_SELF}}
 Environment=WHATSAPP_BRIDGE_PORT={{BRIDGE_PORT}}
-Restart=on-failure
+# always, not on-failure: the bridge exits 0 when it gives up connecting.
+Restart=always
 RestartSec=30
 StandardOutput=append:{{LOG_PATH}}
 StandardError=append:{{LOG_PATH}}

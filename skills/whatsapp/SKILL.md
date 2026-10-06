@@ -46,8 +46,8 @@ never commit it, never copy the DBs elsewhere, never loosen its permissions.
    `list_messages`, `list_chats`, `get_chat`, `get_direct_chat_by_contact`,
    `get_contact_chats`, `get_last_interaction`, `get_message_context`,
    `send_message`, `send_reaction`, `send_file`, `send_audio_message`,
-   `download_media`. Preferred for interactive sends (permission prompt) and
-   media.
+   `mark_messages_read`, `download_media`, `view_media`, `transcribe_audio`.
+   Preferred for interactive sends (permission prompt) and media.
 3. **Direct SQLite** — when the CLI isn't available; works even when the
    bridge is down:
    ```bash
@@ -101,13 +101,16 @@ never commit it, never copy the DBs elsewhere, never loosen its permissions.
 - Bridge down (sends fail, no new messages): reads from SQLite keep working;
   the bridge catches up on restart. Restart via launchd/systemd/Task Scheduler
   (see doctor output for the exact command).
+- `Client outdated (405)` in the bridge log: WhatsApp retired this bridge
+  build. Re-pairing will not help; re-run setup with `--update` (Windows:
+  `-Update`) to move to the pinned revision and rebuild.
 - Session dropped / needs re-pairing: run `scripts/pair.sh` (Windows:
   `scripts\pair.ps1`) in a terminal — it shows a QR code; scan within ~20s
   (WhatsApp > Settings > Linked Devices). If only the service log is
   available, render the QR from it:
   `uv run --with pillow python scripts/qr.py`.
-- Webhook forwarding is disabled by default (`WEBHOOK_URL` points at the
-  discard port). This is deliberate hardening — keep it unless the user
+- Webhook forwarding is disabled by default (`WEBHOOK_ENABLED=false`, and
+  `WEBHOOK_URL` points at the discard port). This is deliberate hardening — keep it unless the user
   explicitly wants webhook forwarding (re-run setup with `--webhook <url>`).
 
 ## Field notes (append new learnings here)
