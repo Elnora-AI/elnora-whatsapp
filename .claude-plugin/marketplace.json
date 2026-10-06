@@ -11,7 +11,7 @@
       "name": "whatsapp",
       "description": "Read, search, and send WhatsApp messages from your own paired account \u2014 fully local (SQLite on your machine), automated setup, keep-alive service on macOS/Linux/Windows.",
       "source": "./",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "category": "communication",
       "tags": [
         "whatsapp",

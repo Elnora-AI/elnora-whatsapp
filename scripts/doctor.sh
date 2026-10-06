@@ -79,16 +79,29 @@ fi
 awaiting_qr() {
   [ -s "$LOG_PATH" ] && grep -q -e "Scan this QR code" -e "Waiting for QR code scan" "$LOG_PATH"
 }
+# WhatsApp retires old client versions: the bridge then logs "Client outdated
+# (405)" and never connects. A new QR pairing cannot fix that; a newer build can.
+# True when the last connection outcome in the log is that refusal.
+outdated() {
+  [ -s "$LOG_PATH" ] && grep -E "Client outdated|Successfully connected|Scan this QR code" "$LOG_PATH" | \
+    tail -n 1 | grep -q "Client outdated"
+}
+OUTDATED_MSG="WhatsApp rejects this bridge version (\"Client outdated (405)\" in $LOG_PATH) — run scripts/setup.sh --update; re-pairing will not help"
 if [ -f "$TOKEN_FILE" ]; then
   code="$(curl -s -o /dev/null -w '%{http_code}' \
     -H "Authorization: Bearer $(cat "$TOKEN_FILE")" \
     "http://127.0.0.1:$PORT/api/health" 2>/dev/null || true)"
   case "$code" in
     200) ok "bridge up and WhatsApp session CONNECTED" ;;
-    503) bad "bridge up but NOT connected — pair with scripts/pair.sh" ;;
+    503)
+      if outdated; then bad "$OUTDATED_MSG"
+      else bad "bridge up but NOT connected — pair with scripts/pair.sh"; fi
+      ;;
     401|403) bad "bridge rejected the token — restart the service and retry" ;;
     *)
-      if awaiting_qr; then
+      if outdated; then
+        bad "$OUTDATED_MSG"
+      elif awaiting_qr; then
         bad "NOT PAIRED — run scripts/pair.sh and scan the QR (WhatsApp > Settings > Linked Devices)"
       else
         bad "bridge not reachable on 127.0.0.1:$PORT — check the service and $LOG_PATH"

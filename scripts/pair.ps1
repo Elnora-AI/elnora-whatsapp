@@ -36,6 +36,7 @@ Write-Host ""
 try {
     Push-Location $BridgeDir
     # Same hardened env the scheduled task uses.
+    $env:WEBHOOK_ENABLED = if ($env:WEBHOOK_ENABLED) { $env:WEBHOOK_ENABLED } else { "false" }
     $env:WEBHOOK_URL  = if ($env:WEBHOOK_URL)  { $env:WEBHOOK_URL }  else { "http://127.0.0.1:9/disabled" }
     $env:FORWARD_SELF = if ($env:FORWARD_SELF) { $env:FORWARD_SELF } else { "false" }
     if ($FullHistoryPair) { & $BridgeBin --full-history-pair } else { & $BridgeBin }

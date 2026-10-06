@@ -53,6 +53,7 @@ jobs:
         run: |
           sed -e 's|{{BRIDGE_BIN}}|/tmp/x/bridge|g' -e 's|{{BRIDGE_DIR}}|/tmp/x|g' \
               -e 's|{{WEBHOOK_URL}}|http://127.0.0.1:9/disabled|g' -e 's|{{FORWARD_SELF}}|false|g' \
+              -e 's|{{WEBHOOK_ENABLED}}|false|g' \
               -e 's|{{BRIDGE_PORT}}|8080|g' -e 's|{{LOG_PATH}}|/tmp/x/bridge.log|g' \
               templates/launchd/com.whatsapp-mcp.bridge.plist > /tmp/rendered.plist
           python3 -c "import plistlib; plistlib.load(open('/tmp/rendered.plist','rb'))"
@@ -61,6 +62,7 @@ jobs:
         run: |
           sed -e 's|{{BRIDGE_BIN}}|/tmp/x/bridge|g' -e 's|{{BRIDGE_DIR}}|/tmp/x|g' \
               -e 's|{{WEBHOOK_URL}}|http://127.0.0.1:9/disabled|g' -e 's|{{FORWARD_SELF}}|false|g' \
+              -e 's|{{WEBHOOK_ENABLED}}|false|g' \
               -e 's|{{BRIDGE_PORT}}|8080|g' -e 's|{{LOG_PATH}}|/tmp/x/bridge.log|g' \
               templates/systemd/whatsapp-bridge.service > /tmp/rendered.service
           grep -q '^ExecStart="/tmp/x/bridge"$' /tmp/rendered.service

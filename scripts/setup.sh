@@ -5,14 +5,18 @@
 set -euo pipefail
 
 UPSTREAM_REPO="https://github.com/verygoodplugins/whatsapp-mcp.git"
-# Known-good upstream revision. Override with --ref at your own risk.
-PINNED_REF="e5f1a9aef5c78198ad27d52d40d4513d3b7e0e2f"
+# Known-good upstream revision (v0.7.0). Override with --ref at your own risk.
+# An older pin stops connecting once WhatsApp retires its client version
+# ("Client outdated (405)" in the log); existing installs move with --update.
+PINNED_REF="895404542017f34a900f9f572a5497c275a96440"
 
 INSTALL_DIR="${WHATSAPP_MCP_DIR:-$HOME/.whatsapp-mcp}"
-# Default: webhook forwarding disabled. The bridge has no off switch — an unset
-# WEBHOOK_URL makes it POST every incoming message to localhost:8769, where any
-# local process could listen. Port 9 is root-only to bind, so this discards.
+# Default: webhook forwarding disabled. WEBHOOK_ENABLED=false is the bridge's
+# off switch; an unset WEBHOOK_URL would otherwise POST every incoming message
+# to localhost:8769, where any local process could listen. The URL also points
+# at port 9 (root-only to bind), a second guard for a bridge without the switch.
 WEBHOOK_URL_VALUE="http://127.0.0.1:9/disabled"
+WEBHOOK_ENABLED_VALUE="false"
 FORWARD_SELF_VALUE="false"
 PORT_VALUE="8080"
 INSTALL_SERVICE=1
@@ -43,7 +47,7 @@ die()  { printf '\033[1;31m[setup]\033[0m %s\n' "$*" >&2; exit 1; }
 while [ $# -gt 0 ]; do
   case "$1" in
     --dir)        INSTALL_DIR="$2"; shift 2 ;;
-    --webhook)    WEBHOOK_URL_VALUE="$2"; shift 2 ;;
+    --webhook)    WEBHOOK_URL_VALUE="$2"; WEBHOOK_ENABLED_VALUE="true"; shift 2 ;;
     --port)       PORT_VALUE="$2"; shift 2 ;;
     --no-service) INSTALL_SERVICE=0; shift ;;
     --update)     UPDATE=1; shift ;;
@@ -173,6 +177,7 @@ render() { # $1 = template path, $2 = "xml" | "plain"
   sed -e "s|{{BRIDGE_BIN}}|$(sed_escape "$BRIDGE_BIN")|g" \
       -e "s|{{BRIDGE_DIR}}|$(sed_escape "$BRIDGE_DIR")|g" \
       -e "s|{{WEBHOOK_URL}}|$(sed_escape "$wh")|g" \
+      -e "s|{{WEBHOOK_ENABLED}}|$WEBHOOK_ENABLED_VALUE|g" \
       -e "s|{{FORWARD_SELF}}|$FORWARD_SELF_VALUE|g" \
       -e "s|{{BRIDGE_PORT}}|$PORT_VALUE|g" \
       -e "s|{{LOG_PATH}}|$(sed_escape "$LOG_PATH")|g" \
@@ -199,7 +204,7 @@ if [ "$INSTALL_SERVICE" = 1 ]; then
   fi
 else
   warn "Skipping keep-alive service (--no-service). Run the bridge manually:"
-  warn "  cd $BRIDGE_DIR && WEBHOOK_URL='$WEBHOOK_URL_VALUE' FORWARD_SELF='$FORWARD_SELF_VALUE' WHATSAPP_BRIDGE_PORT='$PORT_VALUE' ./whatsapp-bridge"
+  warn "  cd $BRIDGE_DIR && WEBHOOK_ENABLED='$WEBHOOK_ENABLED_VALUE' WEBHOOK_URL='$WEBHOOK_URL_VALUE' FORWARD_SELF='$FORWARD_SELF_VALUE' WHATSAPP_BRIDGE_PORT='$PORT_VALUE' ./whatsapp-bridge"
 fi
 
 # --- pairing status ----------------------------------------------------------
@@ -234,7 +239,11 @@ log "Install directory : $INSTALL_DIR (chmod 700)"
 log "Bridge binary     : $BRIDGE_BIN"
 log "Bridge log        : $LOG_PATH (chmod 600 — contains message content)"
 log "Message store     : $BRIDGE_DIR/store/ (chmod 700, DBs 600 — never share or commit)"
-log "Webhook forwarding: $WEBHOOK_URL_VALUE"
+if [ "$WEBHOOK_ENABLED_VALUE" = true ]; then
+  log "Webhook forwarding: $WEBHOOK_URL_VALUE"
+else
+  log "Webhook forwarding: disabled"
+fi
 case "$status" in
   paired)
     log "WhatsApp session  : PAIRED and connected — you're done."

@@ -16,10 +16,14 @@ param(
 $ErrorActionPreference = "Stop"
 
 $UpstreamRepo = "https://github.com/verygoodplugins/whatsapp-mcp.git"
-# Known-good upstream revision. Override with -Ref at your own risk.
-$PinnedRef = "e5f1a9aef5c78198ad27d52d40d4513d3b7e0e2f"
+# Known-good upstream revision (v0.7.0). Override with -Ref at your own risk.
+# An older pin stops connecting once WhatsApp retires its client version
+# ("Client outdated (405)" in the log); existing installs move with -Update.
+$PinnedRef = "895404542017f34a900f9f572a5497c275a96440"
 if ($Ref) { $PinnedRef = $Ref }
 $ForwardSelf = "false"
+# The bridge's webhook off switch: on only when -Webhook names a consumer.
+$WebhookEnabled = if ($PSBoundParameters.ContainsKey("Webhook")) { "true" } else { "false" }
 $TaskName = "WhatsApp MCP Bridge"
 
 function Log([string]$msg)  { Write-Host "[setup] $msg" -ForegroundColor Green }
@@ -110,6 +114,7 @@ if (-not $NoService) {
         -replace '\{\{BRIDGE_BIN\}\}', $BridgeBin `
         -replace '\{\{BRIDGE_DIR\}\}', $BridgeDir `
         -replace '\{\{WEBHOOK_URL\}\}', $Webhook `
+        -replace '\{\{WEBHOOK_ENABLED\}\}', $WebhookEnabled `
         -replace '\{\{FORWARD_SELF\}\}', $ForwardSelf `
         -replace '\{\{BRIDGE_PORT\}\}', "$Port" `
         -replace '\{\{LOG_PATH\}\}', $LogPath |
@@ -121,7 +126,7 @@ if (-not $NoService) {
     "CreateObject(""WScript.Shell"").Run """"""$StartCmd"""""", 0, False" |
         Set-Content -Path $StartVbs -Encoding ASCII
 
-    Log "Registering scheduled task '$TaskName' (runs hidden at logon, restarts on failure)"
+    Log "Registering scheduled task '$TaskName' (runs hidden at logon; the start script restarts the bridge whenever it exits)"
     $action   = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//B `"$StartVbs`""
     $trigger  = New-ScheduledTaskTrigger -AtLogOn -User "$env:USERDOMAIN\$env:USERNAME"
     $settings = New-ScheduledTaskSettingsSet `
@@ -133,7 +138,7 @@ if (-not $NoService) {
     Start-ScheduledTask -TaskName $TaskName
 } else {
     Warn "Skipping keep-alive task (-NoService). Run the bridge manually:"
-    Warn "  cd $BridgeDir; `$env:WEBHOOK_URL='$Webhook'; `$env:FORWARD_SELF='$ForwardSelf'; `$env:WHATSAPP_BRIDGE_PORT='$Port'; .\whatsapp-bridge.exe"
+    Warn "  cd $BridgeDir; `$env:WEBHOOK_ENABLED='$WebhookEnabled'; `$env:WEBHOOK_URL='$Webhook'; `$env:FORWARD_SELF='$ForwardSelf'; `$env:WHATSAPP_BRIDGE_PORT='$Port'; .\whatsapp-bridge.exe"
 }
 
 # --- pairing status ----------------------------------------------------------
@@ -169,7 +174,7 @@ Log "Install directory : $Dir (user-only ACL)"
 Log "Bridge binary     : $BridgeBin"
 Log "Bridge log        : $LogPath (contains message content - keep private)"
 Log "Message store     : $Store (never share or commit)"
-Log "Webhook forwarding: $Webhook"
+Log "Webhook forwarding: $(if ($WebhookEnabled -eq 'true') { $Webhook } else { 'disabled' })"
 switch ($status) {
     "paired"   { Log "WhatsApp session  : PAIRED and connected - you're done." }
     "unpaired" {
