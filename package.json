@@ -1,7 +1,7 @@
 {
   "name": "@elnora-ai/whatsapp",
   "version": "0.1.2",
-  "description": "WhatsApp CLI + Claude Code plugin \u2014 read, search, and send WhatsApp messages from your own paired account, 100% locally.",
+  "description": "WhatsApp CLI + Claude Code plugin — read, search, and send WhatsApp messages from your own paired account, 100% locally.",
   "license": "Apache-2.0",
   "author": "Elnora AI <opensource@elnora.ai>",
   "repository": {
